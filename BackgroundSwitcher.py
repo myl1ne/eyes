@@ -74,7 +74,7 @@ class BackgroundSwitcher:
             torch_dtype=torch.float16,
         ).to(self.device)
         
-    def process_image(self, relative_path, plot_image = True):
+    def process_image(self, relative_path, plot_image = False):
         path = os.path.join(self.images_path, relative_path)
         file_name = os.path.splitext(os.path.basename(path))[0]
         print(f"Processing image at {path}, assigned name {file_name}")

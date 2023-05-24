@@ -3,29 +3,34 @@ This app aims at automatically segmenting the foregroud/backgroud in two images 
 
 # Pipeline Logic
 The pipeline is composed of multiple steps:
-* Background/Foreground segmentation:
+
+## Background/Foreground segmentation
 I used SegmentAnything (SAM) to perform a semantic segmentation of elements in the images.
 The background mask is then isolated through an heuristic by looking for a mask that touches both side of an image.
 It is a simple heuristic yet it works well in the case of product shots which tend to be centered and rarely occupy a full side of an image.
 Once the background mask is segmented, its inverse gives us the foreground.
 We repeat this process on both images.
 
-* Background holes inpainting:
+## Background holes inpainting
 Once the foreground has been removed from the image it leaves a hole in the background, which will not necessarily have the shape of the other's image foreground.
 For this reason we need to fill this hole before pasting the new foreground object.
+
 Two methods are available in the pipeline:
-** OpenCV Inpainting: opencv proposes a simple method to inpaint based on color. It is fast and lightweight, but with quality that is far from photorealistic.
+### OpenCV Inpainting
+Opencv proposes a simple method to inpaint based on color. It is fast and lightweight, but with quality that is far from photorealistic.
 ![Burger Processing OpenCV](/static/images/gitcontent/BurgerProcessing.png)
 ![Lipstick Processing OpenCV](/static/images/gitcontent/LipstickProcessing.png)
 
-** StableDiffusion: SD offers an inpainting pipeline that is prompt based which can hallucinate good visual features (e.g continuing a pattern, adding details...), the tradeoff is for speed/RAM usage. A major drawback I faced is the model hallucinating back the foreground content based on the shape to be inpainted. See examples of this problem (the burger is fully reconstructed, which almost seems buggy, and bottles are added in the lipstick image):
+### StableDiffusion
+SD offers an inpainting pipeline that is prompt based which can hallucinate good visual features (e.g continuing a pattern, adding details...), the tradeoff is for speed/RAM usage. A major drawback I faced is the model hallucinating back the foreground content based on the shape to be inpainted. See examples of this problem (the burger is fully reconstructed, which almost seems buggy, and bottles are added in the lipstick image):
 ![Burger Processing Stable Diff](/static/images/gitcontent/BurgerProcessingSD.png)
 ![Lipstick Processing Stable Diff](/static/images/gitcontent/LipstickProcessingSD.png)
 
-** NOT IMPLEMENTED: BIG Lama is another inpainting model which could be a viable solution. I considered using it but ended-up short on time.
+### BIG Lama (NOT IMPLEMENTED)
+BIG Lama is another inpainting model which could be a viable solution. I considered using it but ended-up short on time.
 See: https://github.com/advimman/lama
 
-* Resize Foreground to fit the other's background ratio
+## Resize Foreground to fit the other's background ratio
 The last step is to actually "paste" the foreground on the other background.
 Since images may not have the same resolution, it is needed to resize the foreground (expand or shrink) so that its bigger side matches one of the corresponding dimension of the target background.
 During this process we ensure to keep the ratio of the foreground to avoid distortion of the product. We also center it in the image by adding padding where needed.
@@ -40,7 +45,7 @@ A Jupyter notebook is provided in /notebook .
 * Webapp
 The app is packaged in a single class (BackgroundSwitcher.py) which is wrapped in a Flask server (app.py).
 A simple UI (/templates/index.html) let's a user upload images and get results.
-![Swapping Results](/static/images/gitcontent/SwappedBurgerLipstick.png)
+![Swapping Results](/static/images/gitcontent/WebAppShell.png)
 
 # Installation
 ```
